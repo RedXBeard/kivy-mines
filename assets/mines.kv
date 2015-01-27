@@ -1,0 +1,75 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<Button>
+	background_normal: ""
+	background_down: ""
+	background_disabled_down: ""
+	background_disabled_normal: ""
+	background_color: get_color_from_hex('E2DDD5')
+	border: 16,16,16,16
+	opened: False
+	markup: True
+
+<kivyMines>
+	board_selection: board_selection
+	board_screen: board_screen
+
+	Screen:
+		id: board_selection
+		name: 'board_selection'
+
+		GridLayout:
+			cols: 3
+			rows: 1
+			board_selection: board_selection
+
+			Label:
+				text: "left"
+				size_hint: 0.2, 1
+
+			GridLayout:
+				id: board_selection
+				padding: 0, 6, 0, 6
+				spacing: 6, 6
+				rows: 2
+				cols: 2
+
+				Button:
+					text: '[color=000000]8x8[/color]'
+					on_press: root.board_select(4, 4)
+
+				Button:
+					text: '[color=000000]16x16[/color]'
+					on_press: root.board_select(16, 16)
+
+				Button:
+					text: '[color=000000]30x16[/color]'
+					on_press: root.board_select(30, 16)
+
+				Button:
+					text: '[color=000000]40x20[/color]'
+					on_press: root.board_select(40, 20)
+
+			Label:
+				text: "right"
+				size_hint: 0.2, 1
+
+	Screen:
+		id: board_screen
+		name: 'board_screen'
+		board: board
+		GridLayout:
+			cols: 2
+			rows: 1
+
+			GridLayout:
+				id: board
+				cols: root.horizontal
+				rows: root.vertical
+				padding: 20, 20, 0, 20
+				spacing: 2, 2
+
+
+
+			Label:
+				size_hint_x: 0.1
