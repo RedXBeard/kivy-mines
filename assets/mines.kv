@@ -46,7 +46,7 @@
 
 				Button:
 					text: '[color=000000]8x8[/color]'
-					on_press: root.board_select(4, 4)
+					on_press: root.board_select(8, 8)
 
 				Button:
 					text: '[color=000000]16x16[/color]'
@@ -74,8 +74,8 @@
 
 			GridLayout:
 				id: board
-				cols: root.horizontal
-				rows: root.vertical
+				cols: root.vertical
+				rows: root.horizontal
 				padding: 20, 20, 0, 20
 				spacing: 2, 2
 

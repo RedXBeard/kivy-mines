@@ -1,5 +1,6 @@
-from numpy import zeros
 from random import randint
+
+from numpy import zeros
 
 
 class Mine(object):
@@ -39,6 +40,7 @@ class Mine(object):
         Board should be shaped with wanted horizontal and vertical count.
         """
         self.board = self.board.reshape(self.horizontal, self.vertical)
+        print self.board
 
     def point_neighbours(self):
         """
@@ -66,7 +68,10 @@ class Mine(object):
 
                     for line_pos, col_pos in positions:
                         try:
-                            if self.board[line_pos][col_pos] > -1:
+                            print self.board[line_pos][col_pos], line_pos, col_pos
+                            if -1 < line_pos < self.horizontal and \
+                                                    -1 < col_pos < self.vertical and \
+                                            self.board[line_pos][col_pos] > -1:
                                 self.board[line_pos][col_pos] += 1
                         except IndexError:
                             pass

@@ -1,10 +1,12 @@
 from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager, FadeTransition, WipeTransition, RiseInTransition, FallOutTransition
+from kivy.uix.screenmanager import ScreenManager, WipeTransition
 from kivy.uix.button import Button
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.utils import get_color_from_hex
+
 from kivy.properties import (NumericProperty, ListProperty)
+
 from mine import Mine
 
 
@@ -53,6 +55,7 @@ class KivyMines(ScreenManager):
     def board_select(self, *args):
         self.horizontal, self.vertical = map(int, args)
         mine = Mine(self.horizontal, self.vertical)
+        print mine.board.reshape(1, self.horizontal * self.vertical)
         self.board = map(int, mine.board.reshape(1, self.horizontal * self.vertical)[0])
         self.switch_screen(screen='board_screen')
 
