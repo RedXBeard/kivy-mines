@@ -61,8 +61,35 @@ class KivyMines(ScreenManager):
             cell.disabled = True
 
     def disable_buttons(self, button):
-        board_index = (button.line_index * self.vertical) + button.col_index
-        board_buttons = self.current_screen.board.children
+        button.background_color = HOVER
+
+        line_index, col_index = button.line_index, button.col_index
+
+        top_left = line_index - 1, col_index - 1
+        top = line_index - 1, col_index
+        top_right = line_index - 1, col_index + 1
+
+        left = line_index, col_index - 1
+        right = line_index, col_index + 1
+
+        bot_left = line_index + 1, col_index - 1
+        bot = line_index + 1, col_index
+        bot_right = line_index + 1, col_index + 1
+
+        positions = [top_left, top, top_right,
+                     left, right,
+                     bot_left, bot, bot_right]
+
+        for line, col in positions:
+            board_index = (line * self.vertical) + col
+            button = self.current_screen.board.children[board_index]
+            if -1 < line < self.horizontal and -1 < col < self.vertical:
+                if int(button.hidden) == 0:
+                    self.disable_buttons(button)
+                elif int(button.hidden) > 0:
+                    button.text = "[color=009900][size=45]%s[/size][/color]" % button.hidden
+                    button.background_color = HOVER
+
 
     def board_click(self, *args):
         button = args[0]
@@ -74,8 +101,6 @@ class KivyMines(ScreenManager):
             button.background_color = RED
             self.bomb_all()
         elif button.hidden == 0:
-            button.text = ""
-            button.background_color = HOVER
             self.disable_buttons(button)
         else:
             button.text = "[color=009900][size=45]%s[/size][/color]" % button.hidden
