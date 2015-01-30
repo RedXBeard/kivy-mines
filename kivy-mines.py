@@ -18,6 +18,7 @@ RED = get_color_from_hex('990000')
 
 class BoardButton(Button):
     explode_image = "assets/mine_explode.png"
+    flag_image = "assets/flag.png"
 
     def __init__(self, hidden, line_index, col_index, image=None, *args, **kwargs):
         super(BoardButton, self).__init__(*args, **kwargs)
@@ -61,8 +62,12 @@ class KivyMines(ScreenManager):
             cell.disabled = True
 
     def disable_buttons(self, button):
+        if button.hidden == 0:
+            button.text = ""
+        else:
+            button.text = "[color=009900][size=45]%s[/size][/color]" % button.hidden
         button.background_color = HOVER
-
+        button.disabled = True
         line_index, col_index = button.line_index, button.col_index
 
         top_left = line_index - 1, col_index - 1
@@ -81,14 +86,15 @@ class KivyMines(ScreenManager):
                      bot_left, bot, bot_right]
 
         for line, col in positions:
-            board_index = (line * self.vertical) + col
-            button = self.current_screen.board.children[board_index]
             if -1 < line < self.horizontal and -1 < col < self.vertical:
-                if int(button.hidden) == 0:
+                button = filter(lambda x: x.line_index == line and \
+                                          x.col_index == col, self.current_screen.board.children)[0]
+                if int(button.hidden) == 0 and not button.disabled:
                     self.disable_buttons(button)
                 elif int(button.hidden) > 0:
                     button.text = "[color=009900][size=45]%s[/size][/color]" % button.hidden
                     button.background_color = HOVER
+                    button.disabled = True
 
 
     def board_click(self, *args):
@@ -99,14 +105,18 @@ class KivyMines(ScreenManager):
                                    size=button.size)
             button.add_widget(exploded_image)
             button.background_color = RED
+            button.disabled = True
             self.bomb_all()
         elif button.hidden == 0:
             self.disable_buttons(button)
         else:
             button.text = "[color=009900][size=45]%s[/size][/color]" % button.hidden
             button.background_color = HOVER
+            button.disabled = True
 
-        button.disabled = True
+    def action_click(self, *args):
+        print args
+
 
     def switch_screen(self, screen):
         self.transition = WipeTransition()
@@ -131,6 +141,8 @@ class KivyMines(ScreenManager):
                                  col_index=col_index,
                                  image="assets/mine_exploded.png" if cell else None)
             button.bind(on_press=self.board_click)
+            # button.bind(on_touch_down=self.action_click)
+            # button.fast_bind('on_touch_down', self.board_click, button)
             self.current_screen.board.add_widget(button)
             index += 1
 
