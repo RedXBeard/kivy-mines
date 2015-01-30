@@ -1,5 +1,15 @@
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 
+<BoardButton>
+    background_normal: ""
+	background_down: ""
+	background_disabled_down: ""
+	background_disabled_normal: ""
+	background_color: get_color_from_hex('E2DDD5')
+	border: 16,16,16,16
+	opened: False
+	markup: True
+
 <Button>
 	background_normal: ""
 	background_down: ""
@@ -10,7 +20,7 @@
 	opened: False
 	markup: True
 
-<kivyMines>
+<KivyMines>
 	board_selection: board_selection
 	board_screen: board_screen
 
