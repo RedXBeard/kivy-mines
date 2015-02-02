@@ -1,3 +1,5 @@
+#:kivy 1.8.0
+
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, WipeTransition
 from kivy.uix.button import Button
