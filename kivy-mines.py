@@ -51,8 +51,7 @@ class KivyMines(ScreenManager):
         for but in filter(lambda x: not x.disabled, obj.children):
             x1, x2 = but.pos[0], but.pos[0] + but.height + disabled_area
             y1, y2 = but.pos[1], but.pos[1] + but.width - disabled_area
-            if x1 < mouse_position[0] < x2 and \
-                                    y1 < mouse_position[1] < y2:
+            if x1 < mouse_position[0] < x2 and y1 < mouse_position[1] < y2:
                 but.background_color = HOVER
             else:
                 but.background_color = NORMAL
@@ -93,8 +92,8 @@ class KivyMines(ScreenManager):
 
         for line, col in positions:
             if -1 < line < self.horizontal and -1 < col < self.vertical:
-                button = filter(lambda x: x.line_index == line and \
-                                          x.col_index == col, self.current_screen.board.children)[0]
+                button = \
+                    filter(lambda x: x.line_index == line and x.col_index == col, self.current_screen.board.children)[0]
                 if int(button.hidden) == 0 and not button.disabled:
                     button.clear_flag()
                     self.disable_buttons(button)
