@@ -37,7 +37,6 @@
 			board_selection: board_selection
 
 			Label:
-				text: "left"
 				size_hint: 0.2, 1
 
 			GridLayout:
@@ -64,7 +63,6 @@
 					on_press: root.board_select(40, 20)
 
 			Label:
-				text: "right"
 				size_hint: 0.2, 1
 
 	Screen:
@@ -105,10 +103,14 @@
                 Label:
 
                 Button:
-                    text: "[color=000000]Refresh[/color]"
                     size_hint_y: None
                     background_color: get_color_from_hex('F0F0F0')
                     height: 100
+                    on_press: root.switch_screen('board_selection')
+                    Image:
+                        source: 'assets/refresh#2.png'
+                        pos: self.parent.center_x-20, self.parent.center_y-20
+                        size: 40, 40
 
                 Label:
                     size_hint_y: None

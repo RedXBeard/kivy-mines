@@ -143,6 +143,7 @@ class KivyMines(ScreenManager):
         self.check_complete()
 
     def switch_screen(self, screen):
+        self.found_bombs = 0
         self.transition = WipeTransition()
         self.current = screen
 
