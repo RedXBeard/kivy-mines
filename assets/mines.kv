@@ -20,6 +20,9 @@
 	opened: False
 	markup: True
 
+<Label>
+    markup: True
+
 <KivyMines>
 	board_selection: board_selection
 	board_screen: board_screen
@@ -76,8 +79,37 @@
 				id: board
 				cols: root.vertical
 				rows: root.horizontal
-				padding: 20, 20, 20, 20
+				padding: 20, 20, 0, 20
 				spacing: 2, 2
 
-			Label:
-				size_hint_x: 0.1
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: None
+                width: 100
+
+                Label:
+                    size_hint_y: None
+                    height: 20
+
+                Image:
+                    source: 'assets/mine.png'
+                    size_hint: None, None
+                    size: 40, 40
+                    pos_hint: {'center_x': 0.5}
+
+                Label:
+                    text: '[color=000000]%s/%s[/color]'%(root.found_bombs, root.bomb_count)
+                    size_hint_y: None
+                    height: 20
+
+                Label:
+
+                Button:
+                    text: "[color=000000]Refresh[/color]"
+                    size_hint_y: None
+                    background_color: get_color_from_hex('F0F0F0')
+                    height: 100
+
+                Label:
+                    size_hint_y: None
+                    height: 20

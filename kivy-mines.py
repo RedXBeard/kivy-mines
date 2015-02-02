@@ -19,6 +19,7 @@ RED = get_color_from_hex('990000')
 class BoardButton(Button):
     explode_image = "assets/mine_explode.png"
     flag_image = "assets/flag.png"
+    flagged = False
 
     def __init__(self, hidden, line_index, col_index, image=None, *args, **kwargs):
         super(BoardButton, self).__init__(*args, **kwargs)
@@ -27,12 +28,17 @@ class BoardButton(Button):
         self.line_index = line_index
         self.col_index = col_index
 
+    def clear_flag(self):
+        self.flagged = False
+        self.clear_widgets()
+
 
 class KivyMines(ScreenManager):
     board = ListProperty()
     horizontal = NumericProperty()
     vertical = NumericProperty()
-    bomb_count = NumericProperty()
+    bomb_count = NumericProperty(0)
+    found_bombs = NumericProperty(0)
 
     def hover(self, *args):
         mouse_position = args[1]
@@ -90,33 +96,51 @@ class KivyMines(ScreenManager):
                 button = filter(lambda x: x.line_index == line and \
                                           x.col_index == col, self.current_screen.board.children)[0]
                 if int(button.hidden) == 0 and not button.disabled:
+                    button.clear_flag()
                     self.disable_buttons(button)
                 elif int(button.hidden) > 0:
+                    button.clear_flag()
                     button.text = "[color=009900][size=45]%s[/size][/color]" % button.hidden
                     button.background_color = HOVER
                     button.disabled = True
 
+    def check_complete(self):
+        count = len(filter(lambda x: x.flagged and x.hidden == -1, self.current_screen.board.children))
+        print count, self.bomb_count
 
     def board_click(self, *args):
         button = args[0]
-        if button.hidden == -1:
-            exploded_image = Image(source=button.explode_image,
-                                   pos=button.pos,
-                                   size=button.size)
-            button.add_widget(exploded_image)
-            button.background_color = RED
-            button.disabled = True
-            self.bomb_all()
-        elif button.hidden == 0:
-            self.disable_buttons(button)
+        if hasattr(button.last_touch, 'multitouch_sim'):
+            if button.flagged:
+                button.clear_flag()
+                self.found_bombs -= 1
+            else:
+                img = Image(source=button.flag_image,
+                            pos=button.pos,
+                            size=button.size)
+                button.add_widget(img)
+                button.text = ""
+                button.flagged = True
+                self.found_bombs += 1
         else:
-            button.text = "[color=009900][size=45]%s[/size][/color]" % button.hidden
-            button.background_color = HOVER
-            button.disabled = True
+            if button.flagged:
+                pass
+            elif button.hidden == -1:
+                exploded_image = Image(source=button.explode_image,
+                                       pos=button.pos,
+                                       size=button.size)
+                button.add_widget(exploded_image)
+                button.background_color = RED
+                button.disabled = True
+                self.bomb_all()
+            elif button.hidden == 0:
+                self.disable_buttons(button)
+            else:
+                button.text = "[color=009900][size=45]%s[/size][/color]" % button.hidden
+                button.background_color = HOVER
+                button.disabled = True
 
-    def action_click(self, *args):
-        print args
-
+        self.check_complete()
 
     def switch_screen(self, screen):
         self.transition = WipeTransition()
@@ -135,14 +159,12 @@ class KivyMines(ScreenManager):
         for cell in self.board:
             line_index = index / self.vertical
             col_index = index % self.vertical
-            button = BoardButton(text="[color=000000]%s - %s(%s)[/color]" % (line_index, col_index, cell),
+            button = BoardButton(text='',  # "[color=000000]%s - %s(%s)[/color]" % (line_index, col_index, cell),
                                  hidden=cell,
                                  line_index=line_index,
                                  col_index=col_index,
                                  image="assets/mine_exploded.png" if cell else None)
             button.bind(on_press=self.board_click)
-            # button.bind(on_touch_down=self.action_click)
-            # button.fast_bind('on_touch_down', self.board_click, button)
             self.current_screen.board.add_widget(button)
             index += 1
 
