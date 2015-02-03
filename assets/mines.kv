@@ -1,6 +1,14 @@
 #:kivy 1.8.0
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 
+<CustomLabel>:
+    canvas.before:
+        Color:
+            rgba: get_color_from_hex('E2DDD5')
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
 <BoardButton>
     background_normal: ""
 	background_down: ""
@@ -10,6 +18,7 @@
 	border: 16,16,16,16
 	opened: False
 	markup: True
+	font_size: self.height/3*2
 
 <Button>
 	background_normal: ""
@@ -18,7 +27,7 @@
 	background_disabled_normal: ""
 	background_color: get_color_from_hex('E2DDD5')
 	border: 16,16,16,16
-	opened: False
+	pressed: False
 	markup: True
 
 <Label>
@@ -107,12 +116,15 @@
                     size_hint_y: None
                     background_color: get_color_from_hex('F0F0F0')
                     height: 100
-                    on_press: root.switch_screen('board_selection')
+                    on_press: root.switch_screen('board_selection', 'right')
                     Image:
                         source: 'assets/refresh.png'
                         pos: self.parent.center_x-15, self.parent.center_y-15
                         size: 30, 30
-
+                Label:
+                    text: "[color=000000]%s[/color]"%root.game_since
+                    size_hint_y: None
+                    height: 20
                 Label:
                     size_hint_y: None
                     height: 20

@@ -1,14 +1,18 @@
 #:kivy 1.8.0
 
+from datetime import datetime
 from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager, WipeTransition
+from kivy.uix.screenmanager import ScreenManager, SlideTransition
 from kivy.uix.button import Button
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.utils import get_color_from_hex
 from kivy.uix.image import Image
+from kivy.clock import Clock
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
 
-from kivy.properties import (NumericProperty, ListProperty)
+from kivy.properties import (NumericProperty, ListProperty, BooleanProperty, StringProperty)
 
 from mine import Mine
 
@@ -16,12 +20,43 @@ from mine import Mine
 HOVER = get_color_from_hex('ACACAC')
 NORMAL = get_color_from_hex('E2DDD5')
 RED = get_color_from_hex('990000')
+COLOR_PALETTE = {
+    1: "ff0000",
+    2: "ff8000",
+    3: "ffff00",
+    4: "80ff00",
+    5: "00ff00",
+    6: "00ff80",
+    7: "00ffff",
+    8: "0080ff"
+}
 
+
+class CustomPopup(Popup):
+    def __init__(self, *args, **kwargs):
+        super(CustomPopup, self).__init__(*args, **kwargs)
+        self.separator_height = 0
+        self.title_size = 0
+        self.background = ""
+        grid = self.children[0]
+        grid.padding = (0, 0, 0, 0)
+
+        for ch in grid.children:
+            if str(ch).find('Label') != -1:
+                grid.remove_widget(ch)
+
+            if str(ch).find('Widget') != -1:
+                ch.size = (0, 0)
+
+
+class CustomLabel(Label):
+    pass
 
 class BoardButton(Button):
     explode_image = "assets/mine_explode.png"
     flag_image = "assets/flag.png"
     flagged = False
+    pressed = False
 
     def __init__(self, hidden, line_index, col_index, image=None, *args, **kwargs):
         super(BoardButton, self).__init__(*args, **kwargs)
@@ -29,6 +64,25 @@ class BoardButton(Button):
         self.image = image
         self.line_index = line_index
         self.col_index = col_index
+
+
+    def get_neighbours(self):
+        line_index, col_index = self.line_index, self.col_index
+
+        top_left = line_index - 1, col_index - 1
+        top = line_index - 1, col_index
+        top_right = line_index - 1, col_index + 1
+
+        left = line_index, col_index - 1
+        right = line_index, col_index + 1
+
+        bot_left = line_index + 1, col_index - 1
+        bot = line_index + 1, col_index
+        bot_right = line_index + 1, col_index + 1
+
+        return [top_left, top, top_right,
+                left, right,
+                bot_left, bot, bot_right]
 
     def clear_flag(self):
         self.flagged = False
@@ -41,6 +95,9 @@ class KivyMines(ScreenManager):
     vertical = NumericProperty()
     bomb_count = NumericProperty(0)
     found_bombs = NumericProperty(0)
+    game_on = BooleanProperty(False)
+    game_since = StringProperty("0:00:00")
+    game_at = None
 
     def hover(self, *args):
         mouse_position = args[1]
@@ -50,7 +107,7 @@ class KivyMines(ScreenManager):
             obj = self.board_screen.board
 
         disabled_area = obj.padding[1]
-        for but in filter(lambda x: not x.disabled, obj.children):
+        for but in filter(lambda x: not x.pressed, obj.children):
             x1, x2 = but.pos[0], but.pos[0] + but.height + disabled_area
             y1, y2 = but.pos[1], but.pos[1] + but.width - disabled_area
             if x1 < mouse_position[0] < x2 and y1 < mouse_position[1] < y2:
@@ -66,52 +123,65 @@ class KivyMines(ScreenManager):
                                       pos=cell.pos,
                                       size=cell.size)
                 cell.add_widget(explode_image)
-            cell.disabled = True
+            cell.pressed = True
+        self.game_on = False
+
+
+    def counter(self):
+        if self.game_on and self.game_at:
+            self.game_since = str(datetime.now() - self.game_at).rsplit(".", 1)[0]
+            Clock.schedule_once(lambda dt: self.counter(), .5)
+
 
     def disable_buttons(self, button):
         if button.hidden == 0:
             button.text = ""
         else:
-            button.text = "[color=009900][size=45]%s[/size][/color]" % button.hidden
+            button.text = "[b][color=%s]%s[/color][/b]" % (COLOR_PALETTE[button.hidden], button.hidden)
         button.background_color = HOVER
-        button.disabled = True
-        line_index, col_index = button.line_index, button.col_index
+        button.pressed = True
 
-        top_left = line_index - 1, col_index - 1
-        top = line_index - 1, col_index
-        top_right = line_index - 1, col_index + 1
-
-        left = line_index, col_index - 1
-        right = line_index, col_index + 1
-
-        bot_left = line_index + 1, col_index - 1
-        bot = line_index + 1, col_index
-        bot_right = line_index + 1, col_index + 1
-
-        positions = [top_left, top, top_right,
-                     left, right,
-                     bot_left, bot, bot_right]
+        positions = button.get_neighbours()
 
         for line, col in positions:
             if -1 < line < self.horizontal and -1 < col < self.vertical:
                 button = \
                     filter(lambda x: x.line_index == line and x.col_index == col, self.current_screen.board.children)[0]
-                if int(button.hidden) == 0 and not button.disabled:
+                if int(button.hidden) == 0 and not button.pressed:
                     button.clear_flag()
                     self.disable_buttons(button)
                 elif int(button.hidden) > 0:
                     button.clear_flag()
-                    button.text = "[color=009900][size=45]%s[/size][/color]" % button.hidden
+                    button.text = "[b][color=%s]%s[/color][/b]" % (COLOR_PALETTE[button.hidden], button.hidden)
                     button.background_color = HOVER
-                    button.disabled = True
+                    button.pressed = True
+
+    def lock_buttons(self):
+        buttons = self.current_screen.board.children
+        for but in buttons:
+            self.board_click(but, False)
 
     def check_complete(self):
         count = len(filter(lambda x: x.flagged and x.hidden == -1, self.current_screen.board.children))
-        print count, self.bomb_count
+        if count == self.bomb_count:
+            self.lock_buttons()
+            self.game_on = False
+            label = CustomLabel(text='[b][color=000000]YOU WON[/color][/b]',
+                                font_size=40)
+            popup = CustomPopup(content=label, title="",
+                                size_hint=(None, None), size=(400, 200))
+            popup.open()
+
 
     def board_click(self, *args):
         button = args[0]
-        if hasattr(button.last_touch, 'multitouch_sim'):
+        check = len(args) == 1 and True or False
+        if not self.game_on:
+            self.game_on = True
+            self.game_at = datetime.now()
+            self.counter()
+
+        if hasattr(button.last_touch, 'multitouch_sim') and check:
             if button.flagged:
                 button.clear_flag()
                 self.found_bombs -= 1
@@ -132,20 +202,24 @@ class KivyMines(ScreenManager):
                                        size=button.size)
                 button.add_widget(exploded_image)
                 button.background_color = RED
-                button.disabled = True
+                button.pressed = True
                 self.bomb_all()
             elif button.hidden == 0:
                 self.disable_buttons(button)
             else:
-                button.text = "[color=009900][size=45]%s[/size][/color]" % button.hidden
+                button.text = "[b][color=%s]%s[/color][/b]" % (COLOR_PALETTE[button.hidden], button.hidden)
                 button.background_color = HOVER
-                button.disabled = True
+                button.pressed = True
 
-        self.check_complete()
+        if check:
+            self.check_complete()
 
-    def switch_screen(self, screen):
+    def switch_screen(self, screen, direction='left'):
         self.found_bombs = 0
-        self.transition = WipeTransition()
+        self.game_on = False
+        self.game_at = None
+        self.game_since = "0:00:00"
+        self.transition = SlideTransition(direction=direction)
         self.current = screen
 
     def board_select(self, *args):
@@ -161,7 +235,7 @@ class KivyMines(ScreenManager):
         for cell in self.board:
             line_index = index / self.vertical
             col_index = index % self.vertical
-            button = BoardButton(text='',  # "[color=000000]%s - %s(%s)[/color]" % (line_index, col_index, cell),
+            button = BoardButton(text='',  # "[color=000000]%s[/color]" % (cell),
                                  hidden=cell,
                                  line_index=line_index,
                                  col_index=col_index,
