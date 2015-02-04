@@ -178,6 +178,10 @@ class KivyMines(ScreenManager):
     def board_click(self, *args):
         button = args[0]
         check = len(args) == 1 and True or False
+        auto = False
+        if len(args) > 1 and args[1] == 'auto':
+            auto = check = True
+
         if not self.game_on:
             self.game_on = True
             self.game_at = datetime.now()
@@ -193,9 +197,9 @@ class KivyMines(ScreenManager):
                     neighbours.append(neighbour)
             if len(filter(lambda x: x.flagged, neighbours)) == button.hidden:
                 for but in filter(lambda x: not x.flagged and not x.pressed, neighbours):
-                    self.board_click(but)
+                    self.board_click(but, 'auto')
         else:
-            if hasattr(button.last_touch, 'multitouch_sim') and check:
+            if hasattr(button.last_touch, 'multitouch_sim') and check and not auto:
                 if button.flagged:
                     button.clear_flag()
                     self.found_bombs -= 1
