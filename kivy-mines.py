@@ -52,6 +52,7 @@ class CustomPopup(Popup):
 class CustomLabel(Label):
     pass
 
+
 class BoardButton(Button):
     explode_image = "assets/mine_explode.png"
     flag_image = "assets/flag.png"
@@ -181,36 +182,48 @@ class KivyMines(ScreenManager):
             self.game_on = True
             self.game_at = datetime.now()
             self.counter()
-
-        if hasattr(button.last_touch, 'multitouch_sim') and check:
-            if button.flagged:
-                button.clear_flag()
-                self.found_bombs -= 1
-            else:
-                img = Image(source=button.flag_image,
-                            pos=button.pos,
-                            size=button.size)
-                button.add_widget(img)
-                button.text = ""
-                button.flagged = True
-                self.found_bombs += 1
+        if button.pressed and button.hidden > 0:
+            positions = button.get_neighbours()
+            neighbours = []
+            for line, col in positions:
+                if -1 < line < self.horizontal and -1 < col < self.vertical:
+                    neighbour = \
+                        filter(lambda x: x.line_index == line and x.col_index == col,
+                               self.current_screen.board.children)[0]
+                    neighbours.append(neighbour)
+            if len(filter(lambda x: x.flagged, neighbours)) == button.hidden:
+                for but in filter(lambda x: not x.flagged and not x.pressed, neighbours):
+                    self.board_click(but)
         else:
-            if button.flagged:
-                pass
-            elif button.hidden == -1:
-                exploded_image = Image(source=button.explode_image,
-                                       pos=button.pos,
-                                       size=button.size)
-                button.add_widget(exploded_image)
-                button.background_color = RED
-                button.pressed = True
-                self.bomb_all()
-            elif button.hidden == 0:
-                self.disable_buttons(button)
+            if hasattr(button.last_touch, 'multitouch_sim') and check:
+                if button.flagged:
+                    button.clear_flag()
+                    self.found_bombs -= 1
+                else:
+                    img = Image(source=button.flag_image,
+                                pos=button.pos,
+                                size=button.size)
+                    button.add_widget(img)
+                    button.text = ""
+                    button.flagged = True
+                    self.found_bombs += 1
             else:
-                button.text = "[b][color=%s]%s[/color][/b]" % (COLOR_PALETTE[button.hidden], button.hidden)
-                button.background_color = HOVER
-                button.pressed = True
+                if button.flagged:
+                    pass
+                elif button.hidden == -1:
+                    exploded_image = Image(source=button.explode_image,
+                                           pos=button.pos,
+                                           size=button.size)
+                    button.add_widget(exploded_image)
+                    button.background_color = RED
+                    button.pressed = True
+                    self.bomb_all()
+                elif button.hidden == 0:
+                    self.disable_buttons(button)
+                else:
+                    button.text = "[b][color=%s]%s[/color][/b]" % (COLOR_PALETTE[button.hidden], button.hidden)
+                    button.background_color = HOVER
+                    button.pressed = True
 
         if check:
             self.check_complete()
