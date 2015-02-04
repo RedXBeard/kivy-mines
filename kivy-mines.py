@@ -108,8 +108,8 @@ class KivyMines(ScreenManager):
 
         disabled_area = obj.padding[1]
         for but in filter(lambda x: not x.pressed, obj.children):
-            x1, x2 = but.pos[0], but.pos[0] + but.height + disabled_area
-            y1, y2 = but.pos[1], but.pos[1] + but.width - disabled_area
+            x1, x2 = but.pos[0], but.pos[0] + but.width
+            y1, y2 = but.pos[1], but.pos[1] + but.height
             if x1 < mouse_position[0] < x2 and y1 < mouse_position[1] < y2:
                 but.background_color = HOVER
             else:
@@ -123,7 +123,7 @@ class KivyMines(ScreenManager):
                                       pos=cell.pos,
                                       size=cell.size)
                 cell.add_widget(explode_image)
-            cell.pressed = True
+            cell.disabled = True
         self.game_on = False
 
 
@@ -160,6 +160,7 @@ class KivyMines(ScreenManager):
         buttons = self.current_screen.board.children
         for but in buttons:
             self.board_click(but, False)
+            but.disabled = True
 
     def check_complete(self):
         count = len(filter(lambda x: x.flagged and x.hidden == -1, self.current_screen.board.children))

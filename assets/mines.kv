@@ -29,6 +29,7 @@
 	border: 16,16,16,16
 	pressed: False
 	markup: True
+	font_size: self.width/5
 
 <Label>
     markup: True
@@ -57,20 +58,20 @@
 				cols: 2
 
 				Button:
-					text: '[color=000000]8x8[/color]'
+					text: '[color=000000]8 x 8[/color]'
 					on_press: root.board_select(8, 8)
 
 				Button:
-					text: '[color=000000]16x16[/color]'
+					text: '[color=000000]16 x 16[/color]'
 					on_press: root.board_select(16, 16)
 
 				Button:
-					text: '[color=000000]30x16[/color]'
-					on_press: root.board_select(30, 16)
+					text: '[color=000000]24 x 24[/color]'
+					on_press: root.board_select(24, 24)
 
 				Button:
-					text: '[color=000000]40x20[/color]'
-					on_press: root.board_select(40, 20)
+					text: '[color=000000]32 x 32[/color]'
+					on_press: root.board_select(32, 32)
 
 			Label:
 				size_hint: 0.2, 1
@@ -80,20 +81,21 @@
 		name: 'board_screen'
 		board: board
 		GridLayout:
-			cols: 2
+			cols: 3
 			rows: 1
+            Label:
 
 			GridLayout:
 				id: board
 				cols: root.vertical
 				rows: root.horizontal
-				padding: 20, 20, 0, 20
+				padding: 0, 20, 0, 20
 				spacing: 2, 2
+                size_hint: None, 1.0
+                width: self.height
 
             BoxLayout:
                 orientation: 'vertical'
-                size_hint_x: None
-                width: 100
 
                 Label:
                     size_hint_y: None
