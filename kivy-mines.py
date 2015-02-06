@@ -200,6 +200,7 @@ class KivyMines(ScreenManager):
                     self.board_click(but, 'auto')
         else:
             if hasattr(button.last_touch, 'multitouch_sim') and check and not auto:
+                button.last_touch.multitouch_sim = False
                 if button.flagged:
                     button.clear_flag()
                     self.found_bombs -= 1
