@@ -14,22 +14,8 @@ from kivy.uix.label import Label
 
 from kivy.properties import (NumericProperty, ListProperty, BooleanProperty, StringProperty)
 
+from config import HOVER, NORMAL, RED, COLOR_PALETTE
 from mine import Mine
-
-
-HOVER = get_color_from_hex('ACACAC')
-NORMAL = get_color_from_hex('E2DDD5')
-RED = get_color_from_hex('990000')
-COLOR_PALETTE = {
-    1: "ff0000",
-    2: "ff8000",
-    3: "ffff00",
-    4: "80ff00",
-    5: "00ff00",
-    6: "00ff80",
-    7: "00ffff",
-    8: "0080ff"
-}
 
 
 class CustomPopup(Popup):
@@ -99,6 +85,7 @@ class KivyMines(ScreenManager):
     game_on = BooleanProperty(False)
     game_since = StringProperty("0:00:00")
     game_at = None
+    popup = None
 
     def hover(self, *args):
         mouse_position = args[1]
@@ -160,7 +147,8 @@ class KivyMines(ScreenManager):
     def lock_buttons(self):
         buttons = self.current_screen.board.children
         for but in buttons:
-            self.board_click(but, False)
+            if not but.pressed:
+                self.board_click(but, check=False)
             but.disabled = True
 
     def check_complete(self):
@@ -168,20 +156,18 @@ class KivyMines(ScreenManager):
         if count == self.bomb_count:
             self.lock_buttons()
             self.game_on = False
-            label = CustomLabel(text='[b][color=000000]YOU WON[/color][/b]',
-                                font_size=40)
-            popup = CustomPopup(content=label, title="",
-                                size_hint=(None, None), size=(400, 200))
-            popup.open()
 
-    def board_click(self, *args):
+            if not self.popup:
+                label = CustomLabel(text='[b][color=000000]YOU WON[/color][/b]', font_size=40)
+                self.popup = CustomPopup(content=label, title="", size_hint=(None, None), size=(400, 200))
+                self.popup.open()
+
+    def board_click(self, *args, **kwargs):
         button = args[0]
-        check = len(args) == 1 and True or False
-        auto = False
-        if len(args) > 1 and args[1] == 'auto':
-            auto = check = True
+        check = kwargs.get('check', True)
+        auto = kwargs.get('auto', False)
 
-        if not self.game_on and not auto:
+        if not self.game_on and check:
             self.game_on = True
             self.game_at = datetime.now()
             self.counter()
@@ -196,7 +182,7 @@ class KivyMines(ScreenManager):
                     neighbours.append(neighbour)
             if len(filter(lambda x: x.flagged, neighbours)) == button.hidden:
                 for but in filter(lambda x: not x.flagged and not x.pressed, neighbours):
-                    self.board_click(but, 'auto')
+                    self.board_click(but, auto=True)
         else:
             if hasattr(button.last_touch, 'multitouch_sim') and check and not auto and not button.pressed:
                 if button.flagged:
@@ -233,6 +219,7 @@ class KivyMines(ScreenManager):
             self.check_complete()
 
     def switch_screen(self, screen, direction='left'):
+        self.popup = None
         self.found_bombs = 0
         self.game_on = False
         self.game_at = None
