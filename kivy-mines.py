@@ -187,6 +187,7 @@ class KivyMines(ScreenManager):
             self.game_at = datetime.now()
             self.counter()
         if button.pressed and button.hidden > 0:
+            button.last_touch.multitouch_sim = False
             positions = button.get_neighbours()
             neighbours = []
             for line, col in positions:
@@ -199,8 +200,7 @@ class KivyMines(ScreenManager):
                 for but in filter(lambda x: not x.flagged and not x.pressed, neighbours):
                     self.board_click(but, 'auto')
         else:
-            if hasattr(button.last_touch, 'multitouch_sim') and check and not auto:
-                button.last_touch.multitouch_sim = False
+            if hasattr(button.last_touch, 'multitouch_sim') and check and not auto and not button.pressed:
                 if button.flagged:
                     button.clear_flag()
                     self.found_bombs -= 1
@@ -229,7 +229,8 @@ class KivyMines(ScreenManager):
                     button.text = "[b][color=%s]%s[/color][/b]" % (COLOR_PALETTE[button.hidden], button.hidden)
                     button.background_color = HOVER
                     button.pressed = True
-
+        if hasattr(button.last_touch, 'multitouch_sim'):
+            button.last_touch.multitouch_sim = False
         if check:
             self.check_complete()
 
