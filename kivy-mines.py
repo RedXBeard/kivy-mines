@@ -187,7 +187,6 @@ class KivyMines(ScreenManager):
             self.game_at = datetime.now()
             self.counter()
         if button.pressed and button.hidden > 0:
-            button.last_touch.multitouch_sim = False
             positions = button.get_neighbours()
             neighbours = []
             for line, col in positions:
