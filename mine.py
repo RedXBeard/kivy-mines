@@ -68,10 +68,9 @@ class Mine(object):
 
                     for line_pos, col_pos in positions:
                         try:
-                            if -1 < line_pos < self.horizontal and \
-                                                    -1 < col_pos < self.vertical and \
-                                            self.board[line_pos][col_pos] > -1:
-                                self.board[line_pos][col_pos] += 1
+                            if -1 < line_pos < self.horizontal and -1 < col_pos < self.vertical:
+                                if self.board[line_pos][col_pos] > -1:
+                                    self.board[line_pos][col_pos] += 1
                         except IndexError:
                             pass
 

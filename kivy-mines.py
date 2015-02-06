@@ -33,8 +33,8 @@ COLOR_PALETTE = {
 
 
 class CustomPopup(Popup):
-    def __init__(self, *args, **kwargs):
-        super(CustomPopup, self).__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super(CustomPopup, self).__init__(**kwargs)
         self.separator_height = 0
         self.title_size = 0
         self.background = ""
@@ -59,13 +59,12 @@ class BoardButton(Button):
     flagged = False
     pressed = False
 
-    def __init__(self, hidden, line_index, col_index, image=None, *args, **kwargs):
-        super(BoardButton, self).__init__(*args, **kwargs)
+    def __init__(self, hidden, line_index, col_index, image=None, **kwargs):
+        super(BoardButton, self).__init__(**kwargs)
         self.hidden = hidden
         self.image = image
         self.line_index = line_index
         self.col_index = col_index
-
 
     def get_neighbours(self):
         line_index, col_index = self.line_index, self.col_index
@@ -116,10 +115,8 @@ class KivyMines(ScreenManager):
             else:
                 but.background_color = NORMAL
 
-
     def set_level(self, level):
         self.level = level
-
 
     def bomb_all(self):
         board = self.current_screen.board
@@ -132,12 +129,10 @@ class KivyMines(ScreenManager):
             cell.disabled = True
         self.game_on = False
 
-
     def counter(self):
         if self.game_on and self.game_at:
             self.game_since = str(datetime.now() - self.game_at).rsplit(".", 1)[0]
             Clock.schedule_once(lambda dt: self.counter(), .5)
-
 
     def disable_buttons(self, button):
         if button.hidden == 0:
@@ -178,7 +173,6 @@ class KivyMines(ScreenManager):
             popup = CustomPopup(content=label, title="",
                                 size_hint=(None, None), size=(400, 200))
             popup.open()
-
 
     def board_click(self, *args):
         button = args[0]
@@ -270,8 +264,8 @@ class KivyMines(ScreenManager):
 
 
 class KivyMinesApp(App):
-    def __init__(self, *args, **kwargs):
-        super(KivyMinesApp, self).__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super(KivyMinesApp, self).__init__(**kwargs)
         Builder.load_file('assets/mines.kv')
         self.title = 'Kivy Mines'
         self.icon = 'assets/mine.png'
