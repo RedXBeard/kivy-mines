@@ -33,6 +33,7 @@ DB = JsonStore(REPOFILE)
 directory = os.path.dirname(REPOFILE)
 if not os.path.exists(directory):
     os.makedirs(directory)
+DB.store_sync()
 
 KIVY_VERSION = VERSION
 
