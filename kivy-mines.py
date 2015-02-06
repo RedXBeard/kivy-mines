@@ -94,6 +94,7 @@ class KivyMines(ScreenManager):
     board = ListProperty()
     horizontal = NumericProperty()
     vertical = NumericProperty()
+    level = NumericProperty(5)
     bomb_count = NumericProperty(0)
     found_bombs = NumericProperty(0)
     game_on = BooleanProperty(False)
@@ -107,7 +108,6 @@ class KivyMines(ScreenManager):
         else:
             obj = self.board_screen.board
 
-        disabled_area = obj.padding[1]
         for but in filter(lambda x: not x.pressed, obj.children):
             x1, x2 = but.pos[0], but.pos[0] + but.width
             y1, y2 = but.pos[1], but.pos[1] + but.height
@@ -115,6 +115,11 @@ class KivyMines(ScreenManager):
                 but.background_color = HOVER
             else:
                 but.background_color = NORMAL
+
+
+    def set_level(self, level):
+        self.level = level
+
 
     def bomb_all(self):
         board = self.current_screen.board
@@ -182,7 +187,7 @@ class KivyMines(ScreenManager):
         if len(args) > 1 and args[1] == 'auto':
             auto = check = True
 
-        if not self.game_on:
+        if not self.game_on and not auto:
             self.game_on = True
             self.game_at = datetime.now()
             self.counter()
@@ -243,7 +248,7 @@ class KivyMines(ScreenManager):
 
     def board_select(self, *args):
         self.horizontal, self.vertical = map(int, args)
-        mine = Mine(self.horizontal, self.vertical)
+        mine = Mine(self.horizontal, self.vertical, self.level)
         self.board = map(int, mine.board.reshape(1, self.horizontal * self.vertical)[0])
         self.bomb_count = len(filter(lambda x: x == -1, self.board))
         self.switch_screen(screen='board_screen')

@@ -31,6 +31,13 @@
 	markup: True
 	font_size: self.width/5
 
+<ToggleButton>
+    text_size: self.width, None
+    background_color: get_color_from_hex('ACACAC' if self.state == "down" else 'F0F0F0')
+    color: 0,0,0,1
+    padding_x: 5
+    allow_no_selection: False
+
 <Label>
     markup: True
 
@@ -47,8 +54,35 @@
 			rows: 1
 			board_selection: board_selection
 
-			Label:
-				size_hint: 0.2, 1
+			BoxLayout:
+			    orientation: 'vertical'
+				size_hint: None, 1
+				width: 120
+
+                Label:
+                    size_hint: 1, None
+                    height: 4
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint: 1, None
+                    height: 100
+                    padding: 2, 2, 2, 2
+
+                    ToggleButton:
+                        group: 'level'
+                        text: 'Hard'
+                        on_press: root.set_level(4)
+                    ToggleButton:
+                        group: 'level'
+                        text: 'Medium'
+                        state: 'down'
+                        on_press: root.set_level(5)
+                    ToggleButton:
+                        group: 'level'
+                        text: 'Easy'
+                        on_press: root.set_level(6)
+                Label:
 
 			GridLayout:
 				id: board_selection
@@ -109,6 +143,11 @@
 
                 Label:
                     text: '[color=000000]%s/%s[/color]'%(root.found_bombs, root.bomb_count)
+                    size_hint_y: None
+                    height: 20
+
+                Label:
+                    text: '[color=000000]%s[/color]'%('Hard' if root.level == 4 else 'Medium' if root.level == 5 else 'Easy')
                     size_hint_y: None
                     height: 20
 

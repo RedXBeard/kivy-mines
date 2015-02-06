@@ -4,11 +4,12 @@ from numpy import zeros
 
 
 class Mine(object):
-    def __init__(self, horizontal=16, vertical=16):
+    def __init__(self, horizontal=16, vertical=16, level=5):
         self.horizontal = horizontal
         self.vertical = vertical
+        self.level = level
         self.board = zeros(self.horizontal * self.vertical)
-        self.bomb_count = self.horizontal * self.vertical / 5
+        self.bomb_count = self.horizontal * self.vertical / self.level
         # Prepare the Board.
         self.locate_bombs()
         self.reshape_board()
