@@ -1,9 +1,14 @@
 #:kivy 1.8.0
 
 from datetime import datetime
+
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, SlideTransition
 from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.utils import get_color_from_hex
@@ -11,28 +16,72 @@ from kivy.uix.image import Image
 from kivy.clock import Clock
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
-
-from kivy.properties import (NumericProperty, ListProperty, BooleanProperty, StringProperty)
-
-from config import HOVER, NORMAL, RED, COLOR_PALETTE
+from kivy.properties import (NumericProperty, ListProperty, BooleanProperty, StringProperty, ObjectProperty)
+from config import HOVER, NORMAL, RED, COLOR_PALETTE, DB
 from mine import Mine
 
 
 class CustomPopup(Popup):
-    def __init__(self, **kwargs):
+    score_board = []
+    editable_text = ObjectProperty()
+
+    def __init__(self, horizontal='', vertical='', spend='', **kwargs):
         super(CustomPopup, self).__init__(**kwargs)
+        self.board_h = horizontal
+        self.board_v = vertical
+        self.spend = spend
         self.separator_height = 0
         self.title_size = 0
         self.background = ""
         grid = self.children[0]
         grid.padding = (0, 0, 0, 0)
 
+        box = None
         for ch in grid.children:
             if str(ch).find('Label') != -1:
                 grid.remove_widget(ch)
 
-            if str(ch).find('Widget') != -1:
+            elif str(ch).find('Widget') != -1:
                 ch.size = (0, 0)
+
+            else:
+                box = ch
+        if box:
+            box.clear_widgets()
+            try:
+                board = DB.store_get('%sx%s' % (self.board_h, self.board_v))
+            except KeyError:
+                board = []
+            board.append({'name': 'name', 'spend': self.spend, 'new': True})
+            board = sorted(board, key=lambda x: x['spend'])
+            scroll = ScrollView()
+            pre_box = GridLayout(cols=1, spacing=2, padding=(2, 2, 2, 0), size_hint_y=None)
+            pre_box.bind(minimum_height=pre_box.setter('height'))
+            for val in board:
+                tmp_box = BoxLayout(orientation='horizontal', size_hint=(1, None), height=20, pos_hint={'top': 1})
+                if 'new' in val:
+                    label_name = TextInput()
+                    self.editable_text = label_name
+                else:
+                    label_name = CustomLabel(text=val['name'], color=(0, 0, 0, 1))
+                label_spend = CustomLabel(text=':%s' % val['spend'], color=(0, 0, 0, 1))
+                tmp_box.add_widget(label_name)
+                tmp_box.add_widget(label_spend)
+                pre_box.add_widget(tmp_box)
+            scroll.add_widget(pre_box)
+            box.add_widget(scroll)
+            box.padding = (0, 0, 0, 6)
+            self.score_board = board
+
+    def on_dismiss(self, *args):
+        for val in self.score_board:
+            if 'new' in val:
+                text = self.editable_text.text
+                val['name'] = text and text or 'unnamed'
+                val.pop('new')
+        DB.store_put('%sx%s' % (self.board_h, self.board_v), self.score_board)
+        DB.store_sync()
+        super(CustomPopup, self).on_dismiss(*args)
 
 
 class CustomLabel(Label):
@@ -152,14 +201,17 @@ class KivyMines(ScreenManager):
             but.disabled = True
 
     def check_complete(self):
+        flagged = len(filter(lambda x: x.flagged, self.current_screen.board.children))
         count = len(filter(lambda x: x.flagged and x.hidden == -1, self.current_screen.board.children))
-        if count == self.bomb_count:
+        if count == self.bomb_count == flagged:
             self.lock_buttons()
             self.game_on = False
 
             if not self.popup:
                 label = CustomLabel(text='[b][color=000000]YOU WON[/color][/b]', font_size=40)
-                self.popup = CustomPopup(content=label, title="", size_hint=(None, None), size=(400, 200))
+                self.popup = CustomPopup(content=label, title="", spend=self.game_since,
+                                         horizontal=self.horizontal, vertical=self.vertical,
+                                         size_hint=(None, None), size=(250, 300))
                 self.popup.open()
 
     def board_click(self, *args, **kwargs):

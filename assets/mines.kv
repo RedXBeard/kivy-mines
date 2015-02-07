@@ -1,6 +1,21 @@
 #:kivy 1.8.0
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 
+<TextInput>:
+    size_hint_y: None
+    height: 20
+    font_size: 12
+    hint_text: 'name'
+    hint_text_color: 0.5, 0.5, 0.5, 1.0
+    multiline: False
+    background_disabled_active: ""
+    background_disabled_normal: ""
+    background_normal: ""
+    background_active: ""
+    focus: True
+    cursor_blink: True
+    padding: 2, 2, 0, 2
+
 <CustomLabel>:
     canvas.before:
         Color:
@@ -8,6 +23,9 @@
         Rectangle:
             pos: self.pos
             size: self.size
+    shorten: True
+	shorten_from: 'right'
+	text_size: self.width, None
 
 <BoardButton>
     background_normal: ""
