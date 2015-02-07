@@ -178,8 +178,8 @@
                     on_press: root.switch_screen('board_selection', 'right')
                     Image:
                         source: 'assets/refresh.png'
-                        pos: self.parent.center_x-15, self.parent.center_y-15
-                        size: 30, 30
+                        pos: map(lambda x: x+(self.size[0]/2), self.parent.pos)
+                        size: map(lambda x: x/2, self.parent.size)
                 Label:
                     text: "[color=000000]%s[/color]"%root.game_since
                     size_hint_y: None

@@ -25,10 +25,11 @@ class CustomPopup(Popup):
     score_board = []
     editable_text = ObjectProperty()
 
-    def __init__(self, horizontal='', vertical='', spend='', **kwargs):
+    def __init__(self, horizontal='', vertical='', spend='', level='', **kwargs):
         super(CustomPopup, self).__init__(**kwargs)
         self.board_h = horizontal
         self.board_v = vertical
+        self.level = level
         self.spend = spend
         self.separator_height = 0
         self.title_size = 0
@@ -49,10 +50,10 @@ class CustomPopup(Popup):
         if box:
             box.clear_widgets()
             try:
-                board = DB.store_get('%sx%s' % (self.board_h, self.board_v))
+                board = DB.store_get('%sx%s-%s' % (self.board_h, self.board_v, self.level))
             except KeyError:
                 board = []
-            board.append({'name': 'name', 'spend': self.spend, 'new': True})
+            board.append({'name': 'noname', 'spend': self.spend, 'new': True})
             board = sorted(board, key=lambda x: x['spend'])
             scroll = ScrollView()
             pre_box = GridLayout(cols=1, spacing=2, padding=(2, 2, 2, 0), size_hint_y=None)
@@ -77,9 +78,9 @@ class CustomPopup(Popup):
         for val in self.score_board:
             if 'new' in val:
                 text = self.editable_text.text
-                val['name'] = text and text or 'unnamed'
+                val['name'] = text and text or 'noname'
                 val.pop('new')
-        DB.store_put('%sx%s' % (self.board_h, self.board_v), self.score_board)
+        DB.store_put('%sx%s-%s' % (self.board_h, self.board_v, self.level), self.score_board)
         DB.store_sync()
         super(CustomPopup, self).on_dismiss(*args)
 
@@ -211,7 +212,7 @@ class KivyMines(ScreenManager):
                 label = CustomLabel(text='[b][color=000000]YOU WON[/color][/b]', font_size=40)
                 self.popup = CustomPopup(content=label, title="", spend=self.game_since,
                                          horizontal=self.horizontal, vertical=self.vertical,
-                                         size_hint=(None, None), size=(250, 300))
+                                         level=self.level, size_hint=(None, None), size=(250, 300))
                 self.popup.open()
 
     def board_click(self, *args, **kwargs):
