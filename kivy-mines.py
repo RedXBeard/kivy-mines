@@ -257,6 +257,7 @@ class KivyMines(ScreenManager):
                 for but in filter(lambda x: not x.flagged and not x.pressed, neighbours):
                     self.board_click(but, auto=True)
         else:
+            print dir(button.last_touch)
             if hasattr(button.last_touch, 'multitouch_sim') and check and not auto and not button.pressed:
                 if button.flagged:
                     button.clear_flag()

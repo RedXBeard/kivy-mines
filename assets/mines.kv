@@ -1,5 +1,6 @@
 #:kivy 1.8.0
 #:import get_color_from_hex kivy.utils.get_color_from_hex
+#:import KIVY_VERSION config.KIVY_VERSION
 
 <TextInput>:
     size_hint_y: None
@@ -86,15 +87,18 @@
                     ToggleButton:
                         group: 'level'
                         text: 'Hard'
+                        padding_x: -5 if KIVY_VERSION == '1.8.0' else 5
                         on_press: root.set_level(4)
                     ToggleButton:
                         group: 'level'
                         text: 'Medium'
                         state: 'down'
+                        padding_x: -5 if KIVY_VERSION == '1.8.0' else 5
                         on_press: root.set_level(5)
                     ToggleButton:
                         group: 'level'
                         text: 'Easy'
+                        padding_x: -5 if KIVY_VERSION == '1.8.0' else 5
                         on_press: root.set_level(6)
                 Label:
 
