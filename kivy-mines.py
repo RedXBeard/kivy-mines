@@ -17,7 +17,7 @@ from kivy.clock import Clock
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.properties import (NumericProperty, ListProperty, BooleanProperty, StringProperty, ObjectProperty)
-from config import HOVER, NORMAL, RED, COLOR_PALETTE, DB
+from config import HOVER, NORMAL, RED, COLOR_PALETTE, DB, DEF_USER
 from mine import Mine
 
 
@@ -32,28 +32,46 @@ class CustomPopup(Popup):
         self.level = level
         self.spend = spend
         self.separator_height = 0
-        self.title_size = 0
         self.background = ""
         grid = self.children[0]
         grid.padding = (0, 0, 0, 0)
 
         box = None
+        title = None
         for ch in grid.children:
             if str(ch).find('Label') != -1:
+                ch.color = 0, 0, 0, 1
+                ch.bold = True
+                title = CustomLabel(text=ch.text, color=ch.color, bold=ch.bold,
+                                    size_hint=(1, None), height=20, padding=(5, 0))
+                color = filter(lambda x: str(x).find('Color') != -1, title.canvas.before.children)[0]
+                color.rgba = (1, 1, 1, 1)
                 grid.remove_widget(ch)
 
             elif str(ch).find('Widget') != -1:
                 ch.size = (0, 0)
 
-            else:
+            elif str(ch).find('BoxLayout') != -1:
+                grid.remove_widget(ch)
                 box = ch
+
+            else:
+                grid.remove_widget(ch)
+
+        if title:
+            seperator = CustomLabel(size_hint=(1, None), height=2)
+            color = filter(lambda x: str(x).find('Color') != -1, seperator.canvas.before.children)[0]
+            color.rgba = HOVER
+            grid.add_widget(title)
+            grid.add_widget(seperator)
+
         if box:
             box.clear_widgets()
             try:
                 board = DB.store_get('%sx%s-%s' % (self.board_h, self.board_v, self.level))
             except KeyError:
                 board = []
-            board.append({'name': 'noname', 'spend': self.spend, 'new': True})
+            board.append({'name': DEF_USER, 'spend': self.spend, 'new': True})
             board = sorted(board, key=lambda x: x['spend'])
             scroll = ScrollView()
             pre_box = GridLayout(cols=1, spacing=2, padding=(2, 2, 2, 0), size_hint_y=None)
@@ -61,7 +79,8 @@ class CustomPopup(Popup):
             for val in board:
                 tmp_box = BoxLayout(orientation='horizontal', size_hint=(1, None), height=20, pos_hint={'top': 1})
                 if 'new' in val:
-                    label_name = TextInput()
+                    label_name = TextInput(text=DEF_USER, focus=True, cursor_blink=True)
+                    label_name.bind(on_text_validate=self.dismiss)
                     self.editable_text = label_name
                 else:
                     label_name = CustomLabel(text=val['name'], color=(0, 0, 0, 1))
@@ -72,13 +91,14 @@ class CustomPopup(Popup):
             scroll.add_widget(pre_box)
             box.add_widget(scroll)
             box.padding = (0, 0, 0, 6)
+            grid.add_widget(box)
             self.score_board = board
 
     def on_dismiss(self, *args):
         for val in self.score_board:
             if 'new' in val:
-                text = self.editable_text.text
-                val['name'] = text and text or 'noname'
+                text = self.editable_text.text.strip()
+                val['name'] = text and text or DEF_USER
                 val.pop('new')
         DB.store_put('%sx%s-%s' % (self.board_h, self.board_v, self.level), self.score_board)
         DB.store_sync()
@@ -209,8 +229,8 @@ class KivyMines(ScreenManager):
             self.game_on = False
 
             if not self.popup:
-                label = CustomLabel(text='[b][color=000000]YOU WON[/color][/b]', font_size=40)
-                self.popup = CustomPopup(content=label, title="", spend=self.game_since,
+                label = CustomLabel(text='', font_size=40)
+                self.popup = CustomPopup(content=label, title="Congrats...", spend=self.game_since,
                                          horizontal=self.horizontal, vertical=self.vertical,
                                          level=self.level, size_hint=(None, None), size=(250, 300))
                 self.popup.open()

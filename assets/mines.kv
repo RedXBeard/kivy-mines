@@ -5,15 +5,11 @@
     size_hint_y: None
     height: 20
     font_size: 12
-    hint_text: 'name'
-    hint_text_color: 0.5, 0.5, 0.5, 1.0
     multiline: False
     background_disabled_active: ""
     background_disabled_normal: ""
     background_normal: ""
     background_active: ""
-    focus: True
-    cursor_blink: True
     padding: 2, 2, 0, 2
 
 <CustomLabel>:
@@ -172,13 +168,19 @@
                 Label:
 
                 Button:
+                    canvas.before:
+                        Color:
+                            rgba: get_color_from_hex('E2DDD5')
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
                     size_hint_y: None
                     background_color: get_color_from_hex('F0F0F0')
                     height: 100
                     on_press: root.switch_screen('board_selection', 'right')
                     Image:
                         source: 'assets/refresh.png'
-                        pos: map(lambda x: x+(self.size[0]/2), self.parent.pos)
+                        pos: self.parent.pos[0]+self.size[0]/2, self.parent.pos[1]+self.size[1]/2
                         size: map(lambda x: x/2, self.parent.size)
                 Label:
                     text: "[color=000000]%s[/color]"%root.game_since

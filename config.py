@@ -1,5 +1,6 @@
 import os
 from subprocess import Popen, PIPE
+
 from kivy import __version__ as VERSION
 from kivy.utils import get_color_from_hex
 from kivy.storage.jsonstore import JsonStore
@@ -27,6 +28,7 @@ else:
     cmd = "echo %USERPROFILE%"
 
 out = run_syscall(cmd)
+DEF_USER = out.split('%s' % PATH_SEPERATOR)[-1]
 REPOFILE = "%(out)s%(ps)s.kivy-mines%(ps)smines" % {'out': out.rstrip(), 'ps': PATH_SEPERATOR}
 
 DB = JsonStore(REPOFILE)
