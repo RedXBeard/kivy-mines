@@ -1,5 +1,3 @@
-#:kivy 1.8.0
-
 from datetime import datetime
 
 from kivy.app import App
@@ -17,9 +15,12 @@ from kivy.clock import Clock
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.properties import (NumericProperty, ListProperty, BooleanProperty, StringProperty, ObjectProperty)
+from kivy.base import EventLoop
 from config import HOVER, NORMAL, RED, COLOR_PALETTE, DB, DEF_USER
 from mine import Mine
 
+
+EventLoop.ensure_window()
 
 class CustomPopup(Popup):
     score_board = []
@@ -257,7 +258,6 @@ class KivyMines(ScreenManager):
                 for but in filter(lambda x: not x.flagged and not x.pressed, neighbours):
                     self.board_click(but, auto=True)
         else:
-            print dir(button.last_touch)
             if hasattr(button.last_touch, 'multitouch_sim') and check and not auto and not button.pressed:
                 if button.flagged:
                     button.clear_flag()
