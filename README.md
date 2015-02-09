@@ -17,7 +17,13 @@ To create a launcher just type the following;
 ```
 gnome-desktop-item-edit --create-new ~/.local/share/applications/.
 ```
-on launcher window type <code>KivyMine</code> in name box, <code>python /repository/path/kivy_mines.py</code> in command box, application icon path is <code>/repository/path/assets/mine.png</code> then click <code>ok</code>. Application is now reachable from the menu.
+On launcher window type;
+
+<code>KivyMine</code> in name box, 
+
+<code>python /repository/path/kivy_mines.py</code> in command box, 
+
+application icon path is <code>/repository/path/assets/mine.png</code> then click <code>ok</code>. Application is now reachable from the menu.
 
 
 #### For Windows
