@@ -23,7 +23,11 @@ On launcher window type;
 
 <code>python /repository/path/kivy_mines.py</code> in command box, 
 
-application icon path is <code>/repository/path/assets/mine.png</code> then click <code>ok</code>. Application is now reachable from the menu.
+application icon path is <code>/repository/path/assets/mine.png</code> then 
+
+click <code>ok</code>. 
+
+Application is now reachable from the menu.
 
 
 #### For Windows
