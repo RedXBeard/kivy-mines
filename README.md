@@ -12,6 +12,7 @@ Run the following commands;
 sudo add-apt-repository ppa:kivy-team/kivy-daily
 sudo apt-get update
 sudo apt-get install python-kivy
+sudo pip install numpy
 ```
 To create a launcher just type the following;
 ```
