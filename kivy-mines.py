@@ -22,6 +22,7 @@ from mine import Mine
 
 EventLoop.ensure_window()
 
+
 class CustomPopup(Popup):
     score_board = []
     editable_text = ObjectProperty()
@@ -149,6 +150,7 @@ class BoardButton(Button):
         self.clear_widgets()
         self.add_widget(img)
 
+
 class KivyMines(ScreenManager):
     board = ListProperty()
     horizontal = NumericProperty()
@@ -171,6 +173,7 @@ class KivyMines(ScreenManager):
         for but in filter(lambda x: not x.pressed, obj.children):
             x1, x2 = but.pos[0], but.pos[0] + but.width
             y1, y2 = but.pos[1], but.pos[1] + but.height
+
             if x1 < mouse_position[0] < x2 and y1 < mouse_position[1] < y2:
                 but.background_color = HOVER
             else:
@@ -304,8 +307,8 @@ class KivyMines(ScreenManager):
         self.switch_screen(screen='board_screen')
 
         self.current_screen.board.clear_widgets()
-
         index = 0
+        screen_board = self.current_screen.board
         for cell in self.board:
             line_index = index / self.vertical
             col_index = index % self.vertical
@@ -314,7 +317,8 @@ class KivyMines(ScreenManager):
                                  line_index=line_index,
                                  col_index=col_index)
             button.bind(on_press=self.board_click)
-            self.current_screen.board.add_widget(button)
+            screen_board.add_widget(button)
+
             index += 1
 
 
