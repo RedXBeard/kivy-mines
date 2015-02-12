@@ -24,15 +24,20 @@
 	text_size: self.width, None
 
 <BoardButton>
+    img: img
     background_normal: ""
 	background_down: ""
 	background_disabled_down: ""
 	background_disabled_normal: ""
 	background_color: get_color_from_hex('E2DDD5')
 	border: 16,16,16,16
-	opened: False
 	markup: True
 	font_size: self.height/3*2
+	Image:
+	    id: img
+	    source: self.parent.trans_image
+        pos: self.parent.pos
+        size: self.parent.size
 
 <Button>
 	background_normal: ""
@@ -121,8 +126,8 @@
 					on_press: root.board_select(24, 24)
 
 				Button:
-					text: '[color=000000]32 x 32[/color]'
-					on_press: root.board_select(32, 32)
+					text: '[color=000000]30 x 30[/color]'
+					on_press: root.board_select(30, 30)
 
 			Label:
 				size_hint: 0.2, 1
@@ -143,7 +148,7 @@
 				padding: 0, 20, 0, 20
 				spacing: 2, 2
                 size_hint: None, 1.0
-                width: self.height
+                width: self.height - 40
 
             BoxLayout:
                 orientation: 'vertical'
@@ -171,12 +176,6 @@
                 Label:
 
                 Button:
-                    canvas.before:
-                        Color:
-                            rgba: get_color_from_hex('E2DDD5')
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
                     size_hint_y: None
                     background_color: get_color_from_hex('F0F0F0')
                     height: 100

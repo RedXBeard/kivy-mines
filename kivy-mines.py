@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, SlideTransition
 from kivy.uix.button import Button
@@ -10,12 +9,13 @@ from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.utils import get_color_from_hex
-from kivy.uix.image import Image
 from kivy.clock import Clock
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
-from kivy.properties import (NumericProperty, ListProperty, BooleanProperty, StringProperty, ObjectProperty)
 from kivy.base import EventLoop
+
+from kivy.properties import (NumericProperty, ListProperty, BooleanProperty, StringProperty, ObjectProperty)
+
 from config import HOVER, NORMAL, RED, COLOR_PALETTE, DB, DEF_USER
 from mine import Mine
 
@@ -112,14 +112,15 @@ class CustomLabel(Label):
 
 class BoardButton(Button):
     explode_image = "assets/mine_explode.png"
+    exploded_image = "assets/mine_exploded.png"
     flag_image = "assets/flag.png"
+    trans_image = "assets/trans.png"
     flagged = False
     pressed = False
 
-    def __init__(self, hidden, line_index, col_index, image=None, **kwargs):
+    def __init__(self, hidden, line_index, col_index, **kwargs):
         super(BoardButton, self).__init__(**kwargs)
         self.hidden = hidden
-        self.image = image
         self.line_index = line_index
         self.col_index = col_index
 
@@ -143,8 +144,10 @@ class BoardButton(Button):
 
     def clear_flag(self):
         self.flagged = False
+        img = self.img
+        img.source = self.trans_image
         self.clear_widgets()
-
+        self.add_widget(img)
 
 class KivyMines(ScreenManager):
     board = ListProperty()
@@ -179,11 +182,9 @@ class KivyMines(ScreenManager):
     def bomb_all(self):
         board = self.current_screen.board
         for cell in board.children:
-            if cell.hidden == -1 and not cell.children:
-                explode_image = Image(source=cell.image,
-                                      pos=cell.pos,
-                                      size=cell.size)
-                cell.add_widget(explode_image)
+            if cell.hidden == -1 and not cell.pressed and not cell.flagged:
+                cell.clear_flag()
+                cell.img.source = cell.exploded_image
             cell.disabled = True
         self.game_on = False
 
@@ -263,21 +264,15 @@ class KivyMines(ScreenManager):
                     button.clear_flag()
                     self.found_bombs -= 1
                 else:
-                    img = Image(source=button.flag_image,
-                                pos=button.pos,
-                                size=button.size)
-                    button.add_widget(img)
                     button.text = ""
+                    button.img.source = button.flag_image
                     button.flagged = True
                     self.found_bombs += 1
             else:
                 if button.flagged:
                     pass
                 elif button.hidden == -1:
-                    exploded_image = Image(source=button.explode_image,
-                                           pos=button.pos,
-                                           size=button.size)
-                    button.add_widget(exploded_image)
+                    button.img.source = button.explode_image
                     button.background_color = RED
                     button.pressed = True
                     self.bomb_all()
@@ -317,8 +312,7 @@ class KivyMines(ScreenManager):
             button = BoardButton(text='',  # "[color=000000]%s[/color]" % (cell),
                                  hidden=cell,
                                  line_index=line_index,
-                                 col_index=col_index,
-                                 image="assets/mine_exploded.png" if cell else None)
+                                 col_index=col_index)
             button.bind(on_press=self.board_click)
             self.current_screen.board.add_widget(button)
             index += 1
