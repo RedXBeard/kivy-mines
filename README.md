@@ -1,6 +1,12 @@
 # kivy-mines
 mines game written in python kivy
 
+## Releases
+<a href="url"><img src="http://s13.postimg.org/4brugnn47/Screen_Shot_2015_03_26_at_15_23_07.png" align="right" height="300" width="400" ></a>
+
+##### 1.0.0
+- First release
+
 ## Installation
 
 #### For MacOS
