@@ -170,7 +170,7 @@ class KivyMines(ScreenManager):
         else:
             obj = self.board_screen.board
 
-        for but in filter(lambda x: not x.pressed, obj.children):
+        for but in filter(lambda x: not x.pressed and not x.disabled, obj.children):
             x1, x2 = but.pos[0], but.pos[0] + but.width
             y1, y2 = but.pos[1], but.pos[1] + but.height
 
@@ -295,9 +295,27 @@ class KivyMines(ScreenManager):
         self.found_bombs = 0
         self.game_on = False
         self.game_at = None
-        self.game_since = "0:00:00"
+        self.game_since = "0:00:01"
         self.transition = SlideTransition(direction=direction)
         self.current = screen
+
+    def prepare_board(self, index=0):
+        screen_board = self.current_screen.board
+        if index >= len(self.board):
+            for cell in screen_board.children:
+                cell.disabled = False
+        else:
+            line_index = index / self.vertical
+            col_index = index % self.vertical
+            button = BoardButton(hidden=self.board[index],
+                                 line_index=line_index,
+                                 col_index=col_index,
+                                 disabled=True)
+            button.bind(on_press=self.board_click)
+            screen_board.add_widget(button)
+
+            Clock.schedule_once(lambda dt: self.prepare_board(index=index+1), .0000001)
+
 
     def board_select(self, *args):
         self.horizontal, self.vertical = map(int, args)
@@ -307,19 +325,7 @@ class KivyMines(ScreenManager):
         self.switch_screen(screen='board_screen')
 
         self.current_screen.board.clear_widgets()
-        index = 0
-        screen_board = self.current_screen.board
-        for cell in self.board:
-            line_index = index / self.vertical
-            col_index = index % self.vertical
-            button = BoardButton(text='',  # "[color=000000]%s[/color]" % (cell),
-                                 hidden=cell,
-                                 line_index=line_index,
-                                 col_index=col_index)
-            button.bind(on_press=self.board_click)
-            screen_board.add_widget(button)
-
-            index += 1
+        self.prepare_board()
 
 
 class KivyMinesApp(App):
